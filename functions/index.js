@@ -3,8 +3,22 @@ const { Telegraf } = require("telegraf");
 
 const bot = new Telegraf(botToken);
 
+const {
+  getUserID,
+  getUserName,
+  getReplyOptions,
+  fullNameWithTag
+} = require("./encapsulation/telegraf-logic");
+
 bot.start((ctx) => {
-  ctx.reply("Hey there, it's working!");
+  const id = getUserID(ctx);
+  const userName = getUserName(ctx);
+  const nameWithTag = fullNameWithTag(ctx);
+
+  ctx.reply(
+    `Hey there, it's working!\nYour id: ${id}\nYour name is ${nameWithTag}`,
+    getReplyOptions(ctx.message)
+  );
 });
 
 bot.launch();
