@@ -1,7 +1,7 @@
-import { db } from "./config";
-import { doc, getDoc } from "firebase/firestore";
+const { db } = require("./config");
+const { doc, getDoc } = require("firebase/firestore");
 
-export const documentRead = (collection, docID) => {
+const documentRead = (collection, docID) => {
   let document = null;
   let error = null;
 
@@ -23,3 +23,5 @@ export const documentRead = (collection, docID) => {
 
   return { document, error };
 };
+
+module.exports = documentRead;

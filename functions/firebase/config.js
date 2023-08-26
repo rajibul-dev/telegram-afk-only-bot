@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+const { initializeApp } = require("firebase/app");
+const { getFirestore } = require("firebase/firestore");
 
 // Coonnect to the server with correct values
 const firebaseConfig = {
@@ -17,7 +17,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore();
 
-// timestamp
-const timestamp = firebase.firestore.Timestamp;
-
-export { app, db, timestamp };
+module.exports = { app, db };

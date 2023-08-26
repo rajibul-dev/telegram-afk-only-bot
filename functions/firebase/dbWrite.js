@@ -1,7 +1,12 @@
-import { db } from "./config";
-import { doc, addDoc, updateDoc } from "firebase/firestore";
+const { db } = require("./config");
+const {
+  doc,
+  addDoc,
+  updateDoc,
+  serverTimestamp
+} = require("firebase/firestore");
 
-export const documentWrite = (collection) => {
+const documentWrite = (collection) => {
   let error = null;
 
   const documentAdd = async (id, data) => {
@@ -30,5 +35,7 @@ export const documentWrite = (collection) => {
     }
   };
 
-  return { documentAdd, documentUpdate, error };
+  return { documentAdd, documentUpdate, error, serverTimestamp };
 };
+
+module.exports = documentWrite;
