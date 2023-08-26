@@ -1,4 +1,5 @@
 // Firebase logic encapsulated function
+require("./firebase/config");
 const dbWrite = require("./firebase/dbWrite");
 
 const { documentAdd, documentUpdate, error, serverTimestamp } =
