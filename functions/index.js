@@ -8,7 +8,7 @@ const { documentAdd, documentUpdate, documentDelete, error } =
   documentWrite("users");
 
 // read
-const documentRead = require("./firebase/dbRead");
+const { documentRead, queryCollectionEqualRead } = require("./firebase/dbRead");
 
 // Telegraf essential initlization
 const botToken = "6076138177:AAEJBj7-sHaVQg_KcXIp_64YA1pRjHtzBtE";
@@ -19,12 +19,14 @@ const bot = new Telegraf(botToken);
 // Telegraf logic encapsulated function
 const {
   getUserID,
-  getUserName,
+  getFullName,
   getReplyOptions,
   fullNameWithTag,
   getCommandArguments,
   getReason,
-  getTaggedPersonData
+  getTaggedPersonData,
+  getUsername,
+  getFullNameAndNameTagWithID
 } = require("./encapsulation/telegraf-logic");
 
 // Reusable message strings
@@ -43,6 +45,7 @@ startCommands.forEach((command) => {
 bot.command("afk", async (ctx) => {
   const userID = `${getUserID(ctx)}`;
   const nameTag = fullNameWithTag(ctx);
+  const username = getUsername(ctx);
   const reasonRes = getReason(ctx);
   const reason = reasonRes ? reasonRes : null;
 
@@ -50,14 +53,17 @@ bot.command("afk", async (ctx) => {
   const { document } = await documentRead("users", userID);
 
   if (document && document.afkAt) {
-    documentUpdate(userID, { afkAt: serverTimestamp(), reason });
+    // update afk and reason values
+    documentUpdate(userID, { afkAt: serverTimestamp(), reason, username });
+
+    // send "is now afk" message
     reason
       ? ctx.reply(
-          `${nameTag} is now afk.\nUpdated afk <em>time</em> and <em>reason</em>!\n<strong>Reason:</strong> ${reason}`,
+          `${nameTag} is now away.\nUpdated afk <em>time</em> and <em>reason</em>!\n<strong>Reason:</strong> ${reason}`,
           getReplyOptions(ctx.message)
         )
       : ctx.reply(
-          `${nameTag} is now afk.\nUpdated afk <em>time</em>!`,
+          `${nameTag} is now away.\nUpdated afk <em>time</em>!`,
           getReplyOptions(ctx.message)
         );
     return;
@@ -65,23 +71,25 @@ bot.command("afk", async (ctx) => {
 
   const data = {
     afkAt: serverTimestamp(),
-    reason
+    reason,
+    username
   };
 
   documentAdd(userID, data);
 
   reason
     ? ctx.reply(
-        `${nameTag} is now afk!\n<strong>Reason:</strong> ${reason}`,
+        `${nameTag} is now away!\n<strong>Reason:</strong> ${reason}`,
         getReplyOptions(ctx.message)
       )
-    : ctx.reply(`${nameTag} is now afk!`, getReplyOptions(ctx.message));
+    : ctx.reply(`${nameTag} is now away!`, getReplyOptions(ctx.message));
 });
 
-// remove if was afk and messaged
+// unset afk if was afk and messaged
 bot.on("message", async (ctx) => {
   const userID = `${getUserID(ctx)}`;
   const nameTag = fullNameWithTag(ctx);
+  const username = getUsername(ctx);
 
   const { document } = await documentRead("users", userID);
 
@@ -92,18 +100,22 @@ bot.on("message", async (ctx) => {
       roundingMethod: "round"
     });
 
+    // unset afk
     const resetData = {
       afkAt: null,
-      reason: null
+      reason: null,
+      username
     };
     documentUpdate(userID, resetData);
+
+    // send "no longer afk" message
     ctx.reply(
-      `${nameTag} is no longer afk!\nThey were afk for ${afkInterval}.`,
+      `${nameTag} is back!\nThey were afk for ${afkInterval}.`,
       getReplyOptions(ctx.message)
     );
   }
 
-  // if someone else tags afk person
+  // if someone else replys to afk person
   if (ctx.message.reply_to_message) {
     const { taggedUserID, taggedUserNameTag } = getTaggedPersonData(ctx);
 
@@ -115,11 +127,13 @@ bot.on("message", async (ctx) => {
 
     // see if the tagged person was afk
     if (taggedUserDocument && taggedUserDocument.afkAt) {
+      // get afk interval of tagged person
       const afkInterval = formatDistanceToNowStrict(
         taggedUserDocument.afkAt.toDate(),
         { roundingMethod: "round", addSuffix: true }
       );
 
+      // send message to the tagger about tagged person's afk status
       taggedUserDocument.reason
         ? ctx.reply(
             `${taggedUserNameTag} is afk.\n Last seen ${afkInterval}.\n<strong>Reason:</strong> ${taggedUserDocument.reason}`,
@@ -131,6 +145,48 @@ bot.on("message", async (ctx) => {
           );
     }
   }
+
+  // if someone else mentions to afk person
+  const messageEntities = ctx.message.entities || [];
+
+  const mentionedUsernames = messageEntities
+    .filter((entity) => entity.type === "mention")
+    .map((entity) =>
+      ctx.message.text.substr(entity.offset + 1, entity.length - 1)
+    );
+
+  // loop over the mentions handle their replies
+  mentionedUsernames.forEach(async (uname) => {
+    const { document, error } = await queryCollectionEqualRead(
+      "users",
+      "username",
+      uname
+    );
+    const { id, afkAt, reason } = document[0];
+
+    // get full name with tag of the mentioned user
+    const { nameTag } = await getFullNameAndNameTagWithID(id, ctx);
+
+    // see if mentioned person is afk
+    if (afkAt) {
+      // get their afk period
+      const afkInterval = formatDistanceToNowStrict(afkAt.toDate(), {
+        roundingMethod: "round",
+        addSuffix: true
+      });
+
+      // send the reply which was the whole point
+      reason
+        ? ctx.reply(
+            `${nameTag} is afk.\n Last seen ${afkInterval}.\n<strong>Reason:</strong> ${reason}`,
+            getReplyOptions(ctx.message)
+          )
+        : ctx.reply(
+            `${nameTag} is afk.\n Last seen ${afkInterval}.`,
+            getReplyOptions(ctx.message)
+          );
+    }
+  });
 });
 
 // deployment
