@@ -17,5 +17,21 @@ function fullNameWithTag(ctx) {
   const id = getUserID(ctx);
   return `<strong><a href='tg://user?id=${id}'>${name}</a></strong>`;
 }
+function getCommandArguments(ctx) {
+  const message = ctx.message.text;
+  const [command, ...arguments] = message.split(" ");
+  return arguments;
+}
+function getReason(ctx) {
+  const arguemnts = getCommandArguments(ctx);
+  return arguemnts.join(" ");
+}
 
-module.exports = { getUserID, getUserName, getReplyOptions, fullNameWithTag };
+module.exports = {
+  getUserID,
+  getUserName,
+  getReplyOptions,
+  fullNameWithTag,
+  getCommandArguments,
+  getReason
+};
