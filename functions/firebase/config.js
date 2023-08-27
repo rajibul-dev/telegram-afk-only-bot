@@ -14,7 +14,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-initializeApp(firebaseConfig);
-const db = getFirestore();
+const afkApp = initializeApp(firebaseConfig);
+const db = getFirestore(afkApp);
 
 module.exports = { db };

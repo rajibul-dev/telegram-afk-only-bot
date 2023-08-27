@@ -1,41 +1,47 @@
 const { db } = require("./config");
 const {
   doc,
-  addDoc,
-  updateDoc,
+  setDoc,
+  deleteDoc,
   serverTimestamp
 } = require("firebase/firestore");
 
-const documentWrite = (collection) => {
+const documentWrite = (col) => {
   let error = null;
 
   const documentAdd = async (id, data) => {
+    const docRef = doc(db, col, id);
     try {
-      // set reference
-      const docRef = doc(db, collection, id);
-
-      // add data
-      await addDoc(docRef, data);
+      await setDoc(docRef, data);
     } catch (err) {
       console.error(err);
-      error = "Could not add data to Firebase";
+      error = "Could not add data to Firestore.";
     }
   };
 
   const documentUpdate = async (id, newData) => {
+    const docRef = doc(db, col, id);
     try {
-      // set reference
-      const docRef = doc(db, collection, id);
-
-      // update document
-      await updateDoc(docRef, newData);
+      await setDoc(docRef, newData, { merge: true });
     } catch (err) {
       console.error(err);
-      error = "Could not update the data in Firebase";
+      error = "Could not update or merge the data in Firebase.";
     }
   };
 
-  return { documentAdd, documentUpdate, error, serverTimestamp };
+  const documentDelete = async (id) => {
+    const docRef = doc(db, col, id);
+    try {
+      await deleteDoc(docRef).then(() => {
+        console.log("Deleted!");
+      });
+    } catch (err) {
+      console.error(err);
+      error = "Could not delete document in Firestore.";
+    }
+  };
+
+  return { documentAdd, documentUpdate, documentDelete, error };
 };
 
-module.exports = documentWrite;
+module.exports = { documentWrite, serverTimestamp };

@@ -1,25 +1,22 @@
 const { db } = require("./config");
-const { doc, getDoc } = require("firebase/firestore");
+const { getDoc, doc } = require("firebase/firestore");
 
-const documentRead = (collection, docID) => {
+const documentRead = async (col, docID) => {
   let document = null;
   let error = null;
 
   // set reference
-  const docRef = doc(db, collection, docID);
+  const docRef = doc(db, col, docID);
 
   // get document
-  getDoc(
-    docRef,
-    (resDoc) => {
-      document = { ...resDoc.data(), id: resDoc.id };
-      error = null;
-    },
-    (err) => {
-      console.error(err);
-      error = "Could not fetch the data from Firebase";
-    }
-  );
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    document = data;
+  } else {
+    error = "Document not found.";
+  }
 
   return { document, error };
 };
