@@ -15,6 +15,7 @@
   },
   "main": "index.js",
   "dependencies": {
+    "date-fns": "^2.30.0",
     "firebase": "^10.3.0",
     "firebase-admin": "^11.8.0",
     "firebase-functions": "^4.3.1",
