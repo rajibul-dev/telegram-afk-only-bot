@@ -26,6 +26,17 @@ function getReason(ctx) {
   const arguemnts = getCommandArguments(ctx);
   return arguemnts.join(" ");
 }
+function getTaggedPersonData(ctx) {
+  const user = ctx.message.reply_to_message?.from;
+
+  const taggedUserID = `${user.id}`;
+  const taggedUserFullName = `${user.first_name}${
+    user.last_name ? " " + user.last_name : ""
+  }`;
+  const taggedUserNameTag = `<strong><a href='tg://user?id=${taggedUserID}'>${taggedUserFullName}</a></strong>`;
+
+  return { taggedUserID, taggedUserFullName, taggedUserNameTag, user };
+}
 
 module.exports = {
   getUserID,
@@ -33,5 +44,6 @@ module.exports = {
   getReplyOptions,
   fullNameWithTag,
   getCommandArguments,
-  getReason
+  getReason,
+  getTaggedPersonData
 };
