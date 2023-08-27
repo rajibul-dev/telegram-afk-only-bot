@@ -1,5 +1,12 @@
 const { db } = require("./config");
-const { getDoc, doc } = require("firebase/firestore");
+const {
+  getDoc,
+  doc,
+  collection,
+  query,
+  where,
+  getDocs
+} = require("firebase/firestore");
 
 const documentRead = async (col, docID) => {
   let document = null;
@@ -21,4 +28,28 @@ const documentRead = async (col, docID) => {
   return { document, error };
 };
 
-module.exports = documentRead;
+const queryCollectionEqualRead = async (col, property, value) => {
+  let document = [];
+  let error = null;
+
+  const colRef = collection(db, col);
+
+  const colQuery = query(colRef, where(property, "==", value));
+
+  try {
+    const querySnapshot = await getDocs(colQuery);
+
+    querySnapshot.forEach((doc) => {
+      const id = doc.id;
+      const data = doc.data();
+      document.push({ ...data, id });
+    });
+  } catch (err) {
+    console.error(err);
+    error = "Could not query the data.";
+  }
+
+  return { document, error };
+};
+
+module.exports = { documentRead, queryCollectionEqualRead };
