@@ -1,3 +1,6 @@
+// main firebase functions import
+const functions = require("firebase-functions");
+
 // import time formatter tool date-fns
 const { formatDistanceToNowStrict } = require("date-fns");
 
@@ -190,4 +193,12 @@ bot.on("message", async (ctx) => {
 });
 
 // deployment
-bot.launch();
+exports.afkBotTelegram = functions.https.onRequest(
+  async (request, response) => {
+    functions.logger.log("Incoming message", request.body);
+    return await bot.handleUpdate(request.body, response).then((rv) => {
+      // if it's not a request from the telegram, rv will be undefined, but we should respond with 200
+      return !rv && response.sendStatus(200);
+    });
+  }
+);
