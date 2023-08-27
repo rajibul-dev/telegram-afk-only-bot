@@ -1,9 +1,12 @@
 function getUserID(ctx) {
   return ctx.message.from.id;
 }
-function getUserName(ctx) {
+function getFullName(ctx) {
   const user = ctx.message.from;
   return `${user.first_name}${user.last_name ? " " + user.last_name : ""}`;
+}
+function getUsername(ctx) {
+  return ctx.message.from.username;
 }
 function getReplyOptions(message) {
   const replyOptions = { parse_mode: "HTML" };
@@ -13,7 +16,7 @@ function getReplyOptions(message) {
   return replyOptions;
 }
 function fullNameWithTag(ctx) {
-  const name = getUserName(ctx);
+  const name = getFullName(ctx);
   const id = getUserID(ctx);
   return `<strong><a href='tg://user?id=${id}'>${name}</a></strong>`;
 }
@@ -37,13 +40,31 @@ function getTaggedPersonData(ctx) {
 
   return { taggedUserID, taggedUserFullName, taggedUserNameTag, user };
 }
+async function getFullNameAndNameTagWithID(id, ctx) {
+  try {
+    const user = await ctx.telegram.getChat(id);
+
+    const fullName = `${user.first_name}${
+      user.last_name ? " " + user.last_name : ""
+    }`;
+    const nameTag = `<strong><a href='tg://user?id=${id}'>${fullName}</a></strong>`;
+
+    return { user, nameTag, fullName };
+  } catch (error) {
+    console.error(error);
+    ctx.reply("An error occurred while fetching user data.");
+    return { user: null, nameTag: null, fullName: null };
+  }
+}
 
 module.exports = {
   getUserID,
-  getUserName,
+  getFullName,
   getReplyOptions,
   fullNameWithTag,
   getCommandArguments,
   getReason,
-  getTaggedPersonData
+  getTaggedPersonData,
+  getUsername,
+  getFullNameAndNameTagWithID
 };
