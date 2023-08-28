@@ -206,5 +206,3 @@ exports.afkBotTelegram = functions.https.onRequest(
     });
   }
 );
-
-// bot.launch();
