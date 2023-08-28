@@ -18,7 +18,11 @@ const { documentAdd, documentUpdate, documentDelete, error } =
 const { documentRead, queryCollectionEqualRead } = require("./firebase/dbRead");
 
 // Telegraf essential initlization
-const botToken = process.env.BOT_TOKEN;
+const botToken =
+  process.env.DEV_MODE === "true"
+    ? process.env.DEV_BOT_TOKEN
+    : process.env.BOT_TOKEN;
+
 const { Telegraf } = require("telegraf");
 
 const bot = new Telegraf(botToken);
@@ -102,10 +106,11 @@ bot.on("message", async (ctx) => {
 
   // if the user was afk
   if (document && document.afkAt) {
-    // get how much time the user was afk
+    // get how much time the user was afk and reason for afk
     const afkInterval = formatDistanceToNowStrict(document.afkAt.toDate(), {
       roundingMethod: "round"
     });
+    const reason = document.reason;
 
     // unset afk
     const resetData = {
@@ -116,10 +121,15 @@ bot.on("message", async (ctx) => {
     documentUpdate(userID, resetData);
 
     // send "no longer afk" message
-    ctx.reply(
-      `${nameTag} is back!\nThey were afk for ${afkInterval}.`,
-      getReplyOptions(ctx.message)
-    );
+    reason
+      ? ctx.reply(
+          `${nameTag} is back!\nThey were afk for ${afkInterval}.\n<strong>Reason:</strong> ${reason}`,
+          getReplyOptions(ctx.message)
+        )
+      : ctx.reply(
+          `${nameTag} is back!\nThey were afk for ${afkInterval}.`,
+          getReplyOptions(ctx.message)
+        );
   }
 
   // if someone else replys to afk person
@@ -206,3 +216,7 @@ exports.afkBotTelegram = functions.https.onRequest(
     });
   }
 );
+
+if (process.env.DEV_MODE === "true") {
+  bot.launch();
+}
