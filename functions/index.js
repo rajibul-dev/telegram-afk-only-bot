@@ -123,7 +123,7 @@ bot.on("message", async (ctx) => {
     // send "no longer afk" message
     reason
       ? ctx.reply(
-          `${nameTag} is back!\nThey were afk for ${afkInterval}.\n<strong>Reason:</strong> ${reason}`,
+          `${nameTag} is back!\nThey were afk for ${afkInterval}.\n\n<strong>Reason:</strong> ${reason}`,
           getReplyOptions(ctx.message)
         )
       : ctx.reply(
