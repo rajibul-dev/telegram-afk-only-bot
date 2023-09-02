@@ -153,11 +153,11 @@ bot.on("message", async (ctx) => {
       // send message to the tagger about tagged person's afk status
       taggedUserDocument.reason
         ? ctx.reply(
-            `${taggedUserNameTag} is afk.\n Last seen ${afkInterval}.\n<strong>Reason:</strong> ${taggedUserDocument.reason}`,
+            `${taggedUserNameTag} is afk.\nLast seen ${afkInterval}.\n<strong>Reason:</strong> ${taggedUserDocument.reason}`,
             getReplyOptions(ctx.message)
           )
         : ctx.reply(
-            `${taggedUserNameTag} is afk.\n Last seen ${afkInterval}.`,
+            `${taggedUserNameTag} is afk.\nLast seen ${afkInterval}.`,
             getReplyOptions(ctx.message)
           );
     }
@@ -195,11 +195,11 @@ bot.on("message", async (ctx) => {
       // send the reply which was the whole point
       reason
         ? ctx.reply(
-            `${nameTag} is afk.\n Last seen ${afkInterval}.\n<strong>Reason:</strong> ${reason}`,
+            `${nameTag} is afk.\nLast seen ${afkInterval}.\n<strong>Reason:</strong> ${reason}`,
             getReplyOptions(ctx.message)
           )
         : ctx.reply(
-            `${nameTag} is afk.\n Last seen ${afkInterval}.`,
+            `${nameTag} is afk.\nLast seen ${afkInterval}.`,
             getReplyOptions(ctx.message)
           );
     }
