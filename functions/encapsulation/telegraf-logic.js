@@ -3,7 +3,9 @@ function getUserID(ctx) {
 }
 function getFullName(ctx) {
   const user = ctx.message.from;
-  return `${user.first_name}${user.last_name ? " " + user.last_name : ""}`;
+  return escapeHTML(
+    `${user.first_name}${user.last_name ? " " + user.last_name : ""}`
+  );
 }
 function getUsername(ctx) {
   return ctx.message.from.username;
@@ -55,6 +57,10 @@ async function getFullNameAndNameTagWithID(id, ctx) {
     ctx.reply("An error occurred while fetching user data.");
     return { user: null, nameTag: null, fullName: null };
   }
+}
+
+function escapeHTML(html) {
+  return html.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 module.exports = {
