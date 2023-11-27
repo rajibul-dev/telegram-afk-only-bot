@@ -5,8 +5,9 @@ dotenv.config();
 // main firebase functions import
 const functions = require("firebase-functions");
 
-// import time formatter tool date-fns
-const { formatDistanceToNowStrict } = require("date-fns");
+// import time formatter tool luxon
+const { DateTime, Duration } = require("luxon");
+const { formatAfkInterval } = require("./encapsulation/luxon-logic");
 
 // Firebase logic encapsulated function
 // write
@@ -37,7 +38,7 @@ const {
   getReason,
   getTaggedPersonData,
   getUsername,
-  getFullNameAndNameTagWithID
+  getFullNameAndNameTagWithID,
 } = require("./encapsulation/telegraf-logic");
 
 // Reusable message strings
@@ -71,11 +72,11 @@ bot.command("afk", async (ctx) => {
     reason
       ? ctx.reply(
           `${nameTag} is now away.\nUpdated afk <em>time</em> and <em>reason</em>!\n<strong>Reason:</strong> ${reason}`,
-          getReplyOptions(ctx.message)
+          getReplyOptions(ctx.message),
         )
       : ctx.reply(
           `${nameTag} is now away.\nUpdated afk <em>time</em>!`,
-          getReplyOptions(ctx.message)
+          getReplyOptions(ctx.message),
         );
     return;
   }
@@ -83,7 +84,7 @@ bot.command("afk", async (ctx) => {
   const data = {
     afkAt: serverTimestamp(),
     reason,
-    username
+    username,
   };
 
   documentAdd(userID, data);
@@ -91,7 +92,7 @@ bot.command("afk", async (ctx) => {
   reason
     ? ctx.reply(
         `${nameTag} is now away!\n<strong>Reason:</strong> ${reason}`,
-        getReplyOptions(ctx.message)
+        getReplyOptions(ctx.message),
       )
     : ctx.reply(`${nameTag} is now away!`, getReplyOptions(ctx.message));
 });
@@ -107,28 +108,35 @@ bot.on("message", async (ctx) => {
   // if the user was afk
   if (document && document.afkAt) {
     // get how much time the user was afk and reason for afk
-    const afkInterval = formatDistanceToNowStrict(document.afkAt.toDate(), {
-      roundingMethod: "round"
-    });
+    const afkInterval = Duration.fromMillis(
+      DateTime.now().toMillis() - document.afkAt.toMillis(),
+    )
+      .shiftTo("years", "months", "days", "hours", "minutes", "seconds")
+      .toObject();
+
+    console.log(afkInterval);
     const reason = document.reason;
+    const afkDurationString = `<strong>${formatAfkInterval(
+      afkInterval,
+    )}</strong>`;
 
     // unset afk
     const resetData = {
       afkAt: null,
       reason: null,
-      username
+      username,
     };
     documentUpdate(userID, resetData);
 
     // send "no longer afk" message
     reason
       ? ctx.reply(
-          `${nameTag} is back!\nThey were afk for ${afkInterval}.\n\n<strong>Reason:</strong> ${reason}`,
-          getReplyOptions(ctx.message)
+          `${nameTag} is back!\nThey were afk for ${afkDurationString}.\n\n<strong>Reason:</strong> ${reason}`,
+          getReplyOptions(ctx.message),
         )
       : ctx.reply(
-          `${nameTag} is back!\nThey were afk for ${afkInterval}.`,
-          getReplyOptions(ctx.message)
+          `${nameTag} is back!\nThey were afk for ${afkDurationString}.`,
+          getReplyOptions(ctx.message),
         );
   }
 
@@ -139,26 +147,30 @@ bot.on("message", async (ctx) => {
     // fetch tagged person's data
     const { document: taggedUserDocument } = await documentRead(
       "users",
-      taggedUserID
+      taggedUserID,
     );
 
     // see if the tagged person was afk
     if (taggedUserDocument && taggedUserDocument.afkAt) {
       // get afk interval of tagged person
-      const afkInterval = formatDistanceToNowStrict(
-        taggedUserDocument.afkAt.toDate(),
-        { roundingMethod: "round", addSuffix: true }
-      );
+      const afkInterval = Duration.fromMillis(
+        DateTime.now().toMillis() - taggedUserDocument.afkAt.toMillis(),
+      )
+        .shiftTo("years", "months", "days", "hours", "minutes", "seconds")
+        .toObject();
+      const afkDurationString = `<strong>${formatAfkInterval(
+        afkInterval,
+      )}</strong>`;
 
       // send message to the tagger about tagged person's afk status
       taggedUserDocument.reason
         ? ctx.reply(
-            `${taggedUserNameTag} is afk.\nLast seen ${afkInterval}.\n<strong>Reason:</strong> ${taggedUserDocument.reason}`,
-            getReplyOptions(ctx.message)
+            `${taggedUserNameTag} is afk.\nLast seen ${afkDurationString}.\n<strong>Reason:</strong> ${taggedUserDocument.reason}`,
+            getReplyOptions(ctx.message),
           )
         : ctx.reply(
-            `${taggedUserNameTag} is afk.\nLast seen ${afkInterval}.`,
-            getReplyOptions(ctx.message)
+            `${taggedUserNameTag} is afk.\nLast seen ${afkDurationString}.`,
+            getReplyOptions(ctx.message),
           );
     }
   }
@@ -169,7 +181,7 @@ bot.on("message", async (ctx) => {
   const mentionedUsernames = messageEntities
     .filter((entity) => entity.type === "mention")
     .map((entity) =>
-      ctx.message.text.substr(entity.offset + 1, entity.length - 1)
+      ctx.message.text.substr(entity.offset + 1, entity.length - 1),
     );
 
   // loop over the mentions handle their replies
@@ -177,7 +189,7 @@ bot.on("message", async (ctx) => {
     const { document, error } = await queryCollectionEqualRead(
       "users",
       "username",
-      uname
+      uname,
     );
     const { id, afkAt, reason } = document[0];
 
@@ -187,20 +199,24 @@ bot.on("message", async (ctx) => {
     // see if mentioned person is afk
     if (afkAt) {
       // get their afk period
-      const afkInterval = formatDistanceToNowStrict(afkAt.toDate(), {
-        roundingMethod: "round",
-        addSuffix: true
-      });
+      const afkInterval = Duration.fromMillis(
+        DateTime.now().toMillis() - afkAt.toMillis(),
+      )
+        .shiftTo("years", "months", "days", "hours", "minutes", "seconds")
+        .toObject();
+      const afkDurationString = `<strong>${formatAfkInterval(
+        afkInterval,
+      )}</strong>`;
 
       // send the reply which was the whole point
       reason
         ? ctx.reply(
-            `${nameTag} is afk.\nLast seen ${afkInterval}.\n<strong>Reason:</strong> ${reason}`,
-            getReplyOptions(ctx.message)
+            `${nameTag} is afk.\nLast seen ${afkDurationString}.\n<strong>Reason:</strong> ${reason}`,
+            getReplyOptions(ctx.message),
           )
         : ctx.reply(
-            `${nameTag} is afk.\nLast seen ${afkInterval}.`,
-            getReplyOptions(ctx.message)
+            `${nameTag} is afk.\nLast seen ${afkDurationString}.`,
+            getReplyOptions(ctx.message),
           );
     }
   });
@@ -214,7 +230,7 @@ exports.afkBotTelegram = functions.https.onRequest(
       // if it's not a request from the telegram, rv will be undefined, but we should respond with 200
       return !rv && response.sendStatus(200);
     });
-  }
+  },
 );
 
 if (process.env.DEV_MODE === "true") {
