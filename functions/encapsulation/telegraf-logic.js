@@ -1,10 +1,14 @@
 function getUserID(ctx) {
   return ctx.message.from.id;
 }
+function getFirstName(ctx) {
+  const user = ctx.message.from;
+  return escapeHTML(user.first_name);
+}
 function getFullName(ctx) {
   const user = ctx.message.from;
   return escapeHTML(
-    `${user.first_name}${user.last_name ? " " + user.last_name : ""}`
+    `${user.first_name}${user.last_name ? " " + user.last_name : ""}`,
   );
 }
 function getUsername(ctx) {
@@ -72,5 +76,6 @@ module.exports = {
   getReason,
   getTaggedPersonData,
   getUsername,
-  getFullNameAndNameTagWithID
+  getFullNameAndNameTagWithID,
+  getFirstName,
 };

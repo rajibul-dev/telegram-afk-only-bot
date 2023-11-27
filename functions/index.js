@@ -39,6 +39,7 @@ const {
   getTaggedPersonData,
   getUsername,
   getFullNameAndNameTagWithID,
+  getFirstName,
 } = require("./encapsulation/telegraf-logic");
 
 // Reusable message strings
@@ -57,7 +58,7 @@ startCommands.forEach((command) => {
 bot.command("afk", async (ctx) => {
   const userID = `${getUserID(ctx)}`;
   const nameTag = fullNameWithTag(ctx);
-  const username = getUsername(ctx);
+  const username = getUsername(ctx) || getFirstName(ctx);
   const reasonRes = getReason(ctx);
   const reason = reasonRes ? reasonRes : null;
 
@@ -84,7 +85,7 @@ bot.command("afk", async (ctx) => {
   const data = {
     afkAt: serverTimestamp(),
     reason,
-    username,
+    username: username,
   };
 
   documentAdd(userID, data);
@@ -101,7 +102,7 @@ bot.command("afk", async (ctx) => {
 bot.on("message", async (ctx) => {
   const userID = `${getUserID(ctx)}`;
   const nameTag = fullNameWithTag(ctx);
-  const username = getUsername(ctx);
+  const username = getUsername(ctx) || getFirstName(ctx);
 
   const { document } = await documentRead("users", userID);
 
@@ -179,10 +180,16 @@ bot.on("message", async (ctx) => {
   const messageEntities = ctx.message.entities || [];
 
   const mentionedUsernames = messageEntities
-    .filter((entity) => entity.type === "mention")
+    .filter(
+      (entity) => entity.type === "mention" || entity.type === "text_mention",
+    )
     .map((entity) =>
-      ctx.message.text.substr(entity.offset + 1, entity.length - 1),
+      entity.type === "mention"
+        ? ctx.message.text.substr(entity.offset + 1, entity.length - 1)
+        : ctx.message.text.substr(entity.offset, entity.length),
     );
+
+  console.log(mentionedUsernames);
 
   // loop over the mentions handle their replies
   mentionedUsernames.forEach(async (uname) => {
