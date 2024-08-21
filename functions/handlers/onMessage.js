@@ -30,9 +30,14 @@ const { handleGroupPermission } = require("../encapsulation/permittedGroups");
 module.exports = (bot) => {
   // unset afk if was afk and messaged
   bot.on("message", async (ctx) => {
+    const chatType = ctx.chat.type;
+
+    if (chatType !== "private" && chatType !== "channel") {
+      const groupID = String(ctx.chat.id);
+      handleGroupPermission({ ctx, groupID, handlerType: "onMessage" });
+    }
+
     // check group permission
-    const groupID = String(ctx.chat.id);
-    handleGroupPermission({ ctx, groupID, handlerType: "onMessage" });
 
     const userID = `${getUserID(ctx)}`;
     const nameTag = fullNameWithTag(ctx);
