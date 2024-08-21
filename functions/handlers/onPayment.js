@@ -8,12 +8,12 @@ const { documentRead } = require("../firebase/dbRead");
 const { addMonths, isAfter, format } = require("date-fns");
 
 module.exports = (bot) => {
-  bot.on("pre_checkout_query", (ctx) => {
+  bot.on("pre_checkout_query", async (ctx) => {
     const payload = ctx.preCheckoutQuery.invoice_payload;
     const groupID = payload.groupID;
 
     // check if a subscription is already there or not
-    const { document } = documentRead("groupPlans", groupID);
+    const { document } = await documentRead("groupPlans", groupID);
     if (!document) {
       // no document already, proceed to payment phase
       return ctx.answerPreCheckoutQuery(true);

@@ -28,7 +28,7 @@ const productDescription = `You can enable access for this bot in this group for
 const furtherExplanation = `Note: this is primarily a form of donation and support, paying for getting a mere AFK Bot, and even for 3 months, is not a justifiable deal. However, if your intention is to support me, thank you very much, it would mean a lot to me, and help me tremendously! And it will help me create neat bots for all of you (that are mostly free)!`;
 
 async function handleGroupPermission({ ctx, groupID, handlerType }) {
-  const { document } = documentRead("groupPlans", groupID);
+  const { document } = await documentRead("groupPlans", groupID);
 
   const notMyGroup = !permittedGroups.includes(groupID);
   const notInDatabase = !document;
