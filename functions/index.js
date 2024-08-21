@@ -115,7 +115,6 @@ bot.on("message", async (ctx) => {
       .shiftTo("years", "months", "days", "hours", "minutes", "seconds")
       .toObject();
 
-    console.log(afkInterval);
     const reason = document.reason;
     const afkDurationString = `<strong>${formatAfkInterval(
       afkInterval,
@@ -188,8 +187,6 @@ bot.on("message", async (ctx) => {
         ? ctx.message.text.substr(entity.offset + 1, entity.length - 1)
         : ctx.message.text.substr(entity.offset, entity.length),
     );
-
-  console.log(mentionedUsernames);
 
   // loop over the mentions handle their replies
   mentionedUsernames.forEach(async (uname) => {
