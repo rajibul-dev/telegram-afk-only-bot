@@ -25,7 +25,7 @@ const myGroups = [
 const permittedGroups = [...myGroups];
 
 const productDescription = `You can enable access for this bot in this group for 3 months by purchasing access from the button below.`;
-const furtherExplanation = `Note: this is primarily a form of donation and support, paying for getting a mere AFK Bot, and even for 3 months, is not a justifiable deal. However, if your intention is to support me, thank you very much, it would mean a lot to me, and help me tremendously! And it will help me create neat bots for all of you (that are mostly free)!`;
+const furtherExplanation = `Note: this is primarily a form of donation and support, paying for getting a mere AFK Bot, and even just for 3 months only, is not a justifiable deal. However, if your intention is to support me, thank you very much, it would mean a lot to me, and help me tremendously! And it will help me create neat bots for all of you (that are mostly free)!`;
 
 async function handleGroupPermission({ ctx, groupID, handlerType }) {
   const { document } = await documentRead("groupPlans", groupID);
