@@ -13,6 +13,7 @@ function getInvoice({ title, description, id, currency, amount }) {
     prices: [{ label: title, amount }],
     payload: {
       unique_id: `${id}_${Number(new Date())}`,
+      groupID: id,
       provider_token: STRIPE_TOKEN,
     },
   };

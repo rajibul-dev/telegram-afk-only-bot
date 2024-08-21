@@ -3,14 +3,14 @@ const {
   doc,
   setDoc,
   deleteDoc,
-  serverTimestamp
+  serverTimestamp,
 } = require("firebase/firestore");
 
-const documentWrite = (col) => {
+const documentWrite = (collection) => {
   let error = null;
 
   const documentAdd = async (id, data) => {
-    const docRef = doc(db, col, id);
+    const docRef = doc(db, collection, id);
     try {
       await setDoc(docRef, data);
     } catch (err) {
@@ -20,7 +20,7 @@ const documentWrite = (col) => {
   };
 
   const documentUpdate = async (id, newData) => {
-    const docRef = doc(db, col, id);
+    const docRef = doc(db, collection, id);
     try {
       await setDoc(docRef, newData, { merge: true });
     } catch (err) {
@@ -30,7 +30,7 @@ const documentWrite = (col) => {
   };
 
   const documentDelete = async (id) => {
-    const docRef = doc(db, col, id);
+    const docRef = doc(db, collection, id);
     try {
       await deleteDoc(docRef).then(() => {
         console.log("Deleted!");

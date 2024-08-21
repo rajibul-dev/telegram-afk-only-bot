@@ -32,11 +32,12 @@ module.exports = (bot) => {
   bot.on("message", async (ctx) => {
     const chatType = ctx.chat.type;
 
-    if (chatType !== "private" && chatType !== "channel") {
-      const groupID = String(ctx.chat.id);
-      handleGroupPermission({ ctx, groupID, handlerType: "onMessage" });
+    if (ctx.from.id !== ctx.botInfo.id) {
+      if (chatType !== "private" && chatType !== "channel") {
+        const groupID = String(ctx.chat.id);
+        handleGroupPermission({ ctx, groupID, handlerType: "onMessage" });
+      }
     }
-
     // check group permission
 
     const userID = `${getUserID(ctx)}`;

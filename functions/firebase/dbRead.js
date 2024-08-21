@@ -5,15 +5,15 @@ const {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
 } = require("firebase/firestore");
 
-const documentRead = async (col, docID) => {
+const documentRead = async (collection, docID) => {
   let document = null;
   let error = null;
 
   // set reference
-  const docRef = doc(db, col, docID);
+  const docRef = doc(db, collection, docID);
 
   // get document
   const docSnap = await getDoc(docRef);
