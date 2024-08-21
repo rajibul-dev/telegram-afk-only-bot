@@ -55,13 +55,13 @@ Plan expires on <strong>${format(
       const data = {
         expiry: addMonths(new Date(), 3),
       };
-      documentUpdate(groupID, data);
+      await documentUpdate(groupID, data);
     } else {
       // add new
       const data = {
         expiry: addMonths(new Date(), 3),
       };
-      documentAdd(groupID, data);
+      await documentAdd(groupID, data);
     }
   });
 };
