@@ -1,3 +1,7 @@
+/**
+ * @param {import('telegraf').Telegraf} bot
+ */
+
 // import time formatter tool luxon
 const { DateTime, Duration } = require("luxon");
 const { formatAfkInterval } = require("../encapsulation/luxon-logic");
@@ -21,10 +25,15 @@ const {
   getFullNameAndNameTagWithID,
   getFirstName,
 } = require("../encapsulation/telegraf-logic");
+const { handleGroupPermission } = require("../encapsulation/permittedGroups");
 
 module.exports = (bot) => {
   // unset afk if was afk and messaged
   bot.on("message", async (ctx) => {
+    // check group permission
+    const groupID = String(ctx.chat.id);
+    handleGroupPermission({ ctx, groupID, handlerType: "onMessage" });
+
     const userID = `${getUserID(ctx)}`;
     const nameTag = fullNameWithTag(ctx);
     const username = getUsername(ctx) || getFirstName(ctx);

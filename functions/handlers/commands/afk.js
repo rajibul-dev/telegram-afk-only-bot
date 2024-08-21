@@ -1,3 +1,7 @@
+/**
+ * @param {import('telegraf').Telegraf} bot
+ */
+
 // Firebase logic encapsulated function
 const { documentWrite, serverTimestamp } = require("../../firebase/dbWrite");
 const { documentAdd, documentUpdate } = documentWrite("users");
