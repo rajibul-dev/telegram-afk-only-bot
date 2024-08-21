@@ -26,6 +26,7 @@ function loadHandlers(dirPath) {
   });
 }
 
+// handlers (bot main logic)
 loadHandlers("handlers/commands");
 require("./handlers/onNewMember")(bot);
 require("./handlers/onMessage")(bot);
