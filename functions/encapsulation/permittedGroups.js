@@ -3,8 +3,6 @@
  * @param {import('telegraf').Context} ctx
  */
 
-const { Markup } = require("telegraf");
-const { getUserID } = require("./telegraf-logic");
 const { getInvoice } = require("./invoice");
 
 const myGroups = [
@@ -24,10 +22,8 @@ const myGroups = [
 // TODO: get the premium access groups
 const permittedGroups = [...myGroups];
 
-const productDescription = `You can enable access for this group by purchasing access from below button.
-
-Note: this is primarily a form of donation and support, paying for getting a mere AFK Bot for 3 months is not justifiable, you can easily get free ones.
-However, if your intention is to support me, thank you very much! It will help me create neat bots for all of you (that are mostly free)!`;
+const productDescription = `You can enable access for this bot in this group for 3 months by purchasing access from the button below.`;
+const furtherExplanation = `Note: this is primarily a form of donation and support, paying for getting a mere AFK Bot, and even for 3 months, is not a justifiable deal. However, if your intention is to support me, thank you very much, it would mean a lot to me, and help me tremendously! And it will help me create neat bots for all of you (that are mostly free)!`;
 
 async function handleGroupPermission({ ctx, groupID, handlerType }) {
   if (!permittedGroups.includes(groupID)) {
@@ -39,15 +35,17 @@ async function handleGroupPermission({ ctx, groupID, handlerType }) {
       );
 
       // invoice
-      const invoice = ctx.replyWithInvoice(
+      await ctx.replyWithInvoice(
         getInvoice({
           id: groupID,
-          title: "3 Months AFK Bot Access",
+          title: "3-Month Access for this Group",
           description: productDescription,
           currency: "XTR",
           amount: 50,
         }),
       );
+
+      await ctx.reply(furtherExplanation);
 
       await ctx.reply("Leaving group...");
     } catch (error) {
