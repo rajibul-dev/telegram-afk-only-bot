@@ -19,18 +19,30 @@ const myGroups = [
 // TODO: get the premium access groups
 const permittedGroups = [...myGroups];
 
-function handleGroupPermission({ ctx, groupID, handlerType }) {
-  // Check if the group is permitted
+async function handleGroupPermission({ ctx, groupID, handlerType }) {
   if (!permittedGroups.includes(groupID)) {
-    // Leave the group if it's not permitted
-    ctx.reply(
-      "❌ Since I am a private bot, this group doesn't have access for me...",
-    );
-    ctx.reply("Leaving group...");
+    // no access
+    try {
+      // Attempt to send a message before leaving the group
+      await ctx.reply(
+        "❌ Since I am a private bot, this group doesn't have access for me...",
+      );
+      await ctx.reply("Leaving group...");
+    } catch (error) {
+      // Handle error if bot has already left or cannot send messages
+      console.error("Failed to send message:", error);
+    }
+
+    // Leave the group
     setTimeout(async () => {
-      await ctx.leaveChat();
-    }, 1000);
+      try {
+        await ctx.leaveChat();
+      } catch (error) {
+        console.error("Failed to leave chat:", error);
+      }
+    }, 1500);
   } else {
+    // handle when has access!
     if (handlerType === "onJoin") {
       ctx.reply("✅ Access verified!");
     } else if (handlerType === "onMessage") {
