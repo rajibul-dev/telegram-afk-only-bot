@@ -1,8 +1,7 @@
-const STRIPE_TOKEN = process.env.PROVIDER_TOKEN;
-
-process.env.DEV_MODE === "true"
-  ? process.env.DEV_STRIPE_PROVIDER_TOKEN
-  : process.env.STRIPE_PROVIDER_TOKEN;
+const STRIPE_TOKEN =
+  process.env.DEV_MODE === "true"
+    ? process.env.DEV_STRIPE_PROVIDER_TOKEN
+    : process.env.STRIPE_PROVIDER_TOKEN;
 
 function getInvoice({ title, description, id, currency, amount }) {
   const invoice = {
