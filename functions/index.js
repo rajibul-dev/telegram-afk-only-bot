@@ -30,6 +30,7 @@ function loadHandlers(dirPath) {
 loadHandlers("handlers/commands");
 require("./handlers/onNewMember")(bot);
 require("./handlers/onMessage")(bot);
+require("./handlers/onPayment")(bot);
 
 // deployment
 exports.afkBotTelegram = functions.https.onRequest(
