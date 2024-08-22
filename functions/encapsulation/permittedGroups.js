@@ -48,8 +48,8 @@ async function handleGroupPermission({ ctx, groupID, handlerType }) {
           id: groupID,
           title: "3-Month Access for this Group",
           description: productDescription,
-          currency: "INR",
-          amount: 10,
+          currency: "XTR",
+          amount: 50,
         }),
       );
 
