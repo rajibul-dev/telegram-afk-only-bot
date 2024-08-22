@@ -38,12 +38,13 @@ module.exports = (bot) => {
     // send beautiful payment done message to the user!
     await ctx.reply(
       `<strong>✅ Your payment was successful!</strong>
-Your group will have access to me for the next 3 months. There is no autopay system.
+Your group will have access to me for the next 3 months. You may add back this bot o your group.
 
 Plan expires on <strong>${format(
         addMonths(new Date(), 3),
         "dd/MM/yyyy",
       )}</strong>
+There is no autopay system.
 `,
       { parse_mode: "HTML" },
     );
