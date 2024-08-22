@@ -49,7 +49,7 @@ async function handleGroupPermission({ ctx, groupID, handlerType }) {
           title: "3-Month Access for this Group",
           description: productDescription,
           currency: "XTR",
-          amount: 50,
+          amount: 150,
         }),
       );
 
