@@ -33,15 +33,20 @@ require("./handlers/onMessage")(bot);
 require("./handlers/onPayment")(bot);
 
 // deployment
-exports.afkBotTelegram = functions.https.onRequest(
-  async (request, response) => {
+exports.afkBotTelegram = functions
+  .runWith({
+    memory: "128MB",
+    timeoutSeconds: 5,
+    maxInstances: 3, // Prevent uncontrolled scaling
+    concurrency: 20, // Handle 20 requests per instance
+  })
+  .https.onRequest(async (request, response) => {
     functions.logger.log("Incoming message", request.body);
     return await bot.handleUpdate(request.body, response).then((rv) => {
       // if it's not a request from the telegram, rv will be undefined, but we should respond with 200
       return !rv && response.sendStatus(200);
     });
-  },
-);
+  });
 
 if (process.env.DEV_MODE === "true") {
   bot.launch();
